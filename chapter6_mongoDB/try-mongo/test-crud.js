@@ -1,6 +1,6 @@
 const MongoClient = require('mongodb').MongoClient
 
-const url = "mongodb://mongo:test@localhost:27017/test"
+const url = "mongodb://mongo:test@localhost:27017/test?authSource=admin"
 
 const client = new MongoClient(url)
 
@@ -32,4 +32,4 @@ const main = async () => {
     }
 }
 
-main().then(console.log).catch(console.error)
+main().then().catch(console.error)

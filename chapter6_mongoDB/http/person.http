@@ -1,0 +1,13 @@
+### 리스트 조회
+GET {{person-api}}/person
+Content-Type: application/json
+
+### 이메일 추가
+POST {{person-api}}/person
+Content-Type: application/json
+
+{
+    "name": "jiemu",
+    "age": 30,
+    "email": "jiemu@test.com"
+}
