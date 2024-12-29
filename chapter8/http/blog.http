@@ -1,0 +1,31 @@
+### 게시글 전체 조회
+GET {{blog-api}}/blog
+Content-Type: application/json
+
+### 게시글 상세 조회
+GET {{blog-api}}/blog/1
+Content-Type: application/json
+
+### 게시글 추가
+POST {{blog-api}}/blog
+Content-Type: application/json
+
+{
+    "title": "test",
+    "content": "테스트용",
+    "name": "jiemu"
+}
+
+
+### 게시글 수정
+PUT {{blog-api}}/blog/1
+Content-Type: application/json
+
+{
+    "title": "수정",
+    "content": "내용수정",
+    "name": "jiemu"
+}
+
+### 게시글 삭제
+DELETE {{blog-api}}/blog/1
