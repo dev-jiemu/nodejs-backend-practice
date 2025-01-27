@@ -3,9 +3,13 @@
 
 ----
 ### 백엔드 연습 clone-coding project 😊
-- 참고서적 : https://product.kyobobook.co.kr/detail/S000201457949
-
+참고서적 
+- https://product.kyobobook.co.kr/detail/S000201457949
+- https://product.kyobobook.co.kr/detail/S000200383301
 ----
+#### Node.js 백엔드 개발자 되기(https://product.kyobobook.co.kr/detail/S000201457949)
+관련 프로젝트 폴더 설명 및 내용 정리
+
 1. chapter 5 
    - promise, async/await, callback
 ```javascript
@@ -24,8 +28,6 @@ callback : 콜백 함수내에서 처리
 promise : catch() 메서드로 처리
 async/await : try-catch 블록으로 처리
 ```
-
-
 
 2. chapter 6
    - mongoDB, mongoose
@@ -78,3 +80,16 @@ interface Series {}
 interface BookSeries extends Series {}
 class MovieSeries extends Series {}
 ```
+
+
+---- 
+#### NestJS로 배우는 백엔드 프로그래밍(https://product.kyobobook.co.kr/detail/S000200383301)
+관련 프로젝트 폴더 설명 및 내용 정리
+
+1. controller-practice
+   - Nest.JS Controller create
+   - cmd `nest g controller Users`
+   - service, entity, dao 등 전부 생성하고 싶으면 cmd `nest g resource [name]`
+* resource 로 자동 생성하는 경우 UPDATE method 는 PATCH 로 생성됨
+  * (PUT = 전체 업데이트, PATCH = 일부 업데이트)
+* 관점 지향 프로그래밍 : 모듈 단위로 묶어서 생각하기 (응집도 관점)
