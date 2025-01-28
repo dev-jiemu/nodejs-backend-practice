@@ -3,9 +3,23 @@
 
 ----
 ### 백엔드 연습 clone-coding project 😊
-참고서적 
+참고서적
 - https://product.kyobobook.co.kr/detail/S000201457949
 - https://product.kyobobook.co.kr/detail/S000200383301
+----
+##### cmd 정리
+```shell
+# https://docs.nestjs.com/cli/overview
+
+# create project
+nest new [project-name]
+
+# create schematics
+# app, controller, decorator, filter, gateway, module, provider, resource(CRUD)...
+nest generate(g) [schematics] [name]
+```
+
+
 ----
 #### Node.js 백엔드 개발자 되기(https://product.kyobobook.co.kr/detail/S000201457949)
 관련 프로젝트 폴더 설명 및 내용 정리
@@ -86,10 +100,116 @@ class MovieSeries extends Series {}
 #### NestJS로 배우는 백엔드 프로그래밍(https://product.kyobobook.co.kr/detail/S000200383301)
 관련 프로젝트 폴더 설명 및 내용 정리
 
-1. controller-practice
+1. controller `controller-practice`
    - Nest.JS Controller create
    - cmd `nest g controller Users`
    - service, entity, dao 등 전부 생성하고 싶으면 cmd `nest g resource [name]`
 * resource 로 자동 생성하는 경우 UPDATE method 는 PATCH 로 생성됨
   * (PUT = 전체 업데이트, PATCH = 일부 업데이트)
 * 관점 지향 프로그래밍 : 모듈 단위로 묶어서 생각하기 (응집도 관점)
+
+
+2. provider `user-practice`
+   - 단일 책임 원칙을 기반해서 비즈니스 로직을 수행하는 영역: `provider`로 분리(not controller)
+   - service, repository, factory, helper, etc
+* 등록할때
+```typescript
+@Module({
+   ...,
+   providers: [UsersService] // service 모듈로 등록
+})
+```
+
+```typescript
+//@Injectable() => BaseService 직접 참조 안하니까 선언 ㄴㄴ
+export class BaseService {
+   constructor(private readonly serviceA: ServiceA) {}
+   //super 쓰기 귀찮으면 속성으로 이렇게 처리 가능
+   @Inject(ServiceA) private readonly serviceA: ServiceA
+
+   getHello(): string {
+      return 'hello :)'
+   }
+
+   doSumeFuncFromA(): string {
+      return this.serviceA.getHello()
+   }
+}
+
+@Injectable()
+export class ServiceA {
+   getHello(): string {
+      return 'hello service A :)'
+   }
+}
+
+@Injectable()
+export class ServiceB extends BaseService {
+    // super로 프로바이저 직접 전달하는 방식
+   constructor(private readonly _serviceA: ServiceA) {
+      super(_serviceA);
+   }
+
+   getHello(): string {
+      return this.doSumeFuncFromA()
+   }
+}
+
+@Controller()
+export class AppController {
+    constructor(private readonly serviceB: ServiceB){}
+   
+   @Get('/serviceB')
+   getHello(): string {
+        return this.serviceB.getHello()
+   }
+}
+```
+* 프로바이더에 스코프 적용
+```typescript
+// DEFAULT : 싱글턴 인스턴스가 전체 어플리케이션에서 공유됨 -> 캐시되는 관점에서 가급적 디폴트로 사용 권유함
+// REQUEST : 들어오는 요청마다 별도 인스턴스ㅓ 생성함
+// TRANSIENT : 임시 인스턴스 (공유 ㄴㄴ)
+@Injectable({scope: Scope.REQUEST})
+export class CaseService{}
+```
+* 컨트롤러에 스코프 적용
+```typescript
+export declare function Controller(options: ControllerOptions): ClassDecorator
+
+export interface ControllerOptions extends ScopeOptions, VersionOptions {
+    path?: string | string[]
+    host?: string | RegExp | Array<string | RegExp>
+}
+
+export interface ScopeOptions {
+    scope?: Scope
+}
+
+@Controller({
+   path: 'cats',
+   scope: Scope.REQUEST,
+})
+export class CatsController {}
+```
+
+
+3. Module `user-practice`
+   - 여러 컴포넌트를 조합해서 좀더 큰 작업을 수행할수 있는 단위
+   - ex) UserModule, OrdersModule, ChatModule...
+   - MSA 관점 :)
+```typescript
+@Global() // 전역으로 사용하고 싶을때
+@Module({
+   imports: [], // 다른 모듈 가져올때 
+   controllers: [],
+   providers: [],
+   exports: [] // 이 모듈을 다른곳에서 쓰고싶을 때
+})
+export class AppModule {}
+```
+<strong style="color: red;">!! 주의 !!</strong>  import 에서 Service, Repository 이런거 넣지 말고 `module` 만 넣어야함..;;
+
+
+
+4. dotenv `user-practice`
