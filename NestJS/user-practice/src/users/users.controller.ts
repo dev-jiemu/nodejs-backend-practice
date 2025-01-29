@@ -4,13 +4,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserInfo } from './UserInfo';
+// import { ValidationPipe } from '../pipe/validationPipe';
 
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Post()
-    async createUser(@Body() dto: CreateUserDto): Promise<void> {
+    // 메서드 마다 직접적으로 커스텀 파이프를 적용하고 싶다면 이렇게
+    // async create(@Body(ValidationPipe) dto: CreateUserDto): Promise<void> {
+    async create(@Body() dto: CreateUserDto): Promise<void> {
         const { name, email, password } = dto
         await this.usersService.createUser(name, email, password)
     }

@@ -291,3 +291,15 @@ export class MyApp {
    }
 }
 ```
+
+
+5. 파이프(Pipe) `user-practice`
+* 요청이 라우터로 전달되기 전 요청객체 변환 작업 가능
+  * ex) transformation, validation
+```typescript
+@Get(':id')
+findOne(@Param('id', parseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) id: number) {
+    return this.usersService.findOne(id)
+}
+```
+* class-validator https://github.com/typestack/class-validator
