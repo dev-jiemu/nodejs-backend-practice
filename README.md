@@ -211,5 +211,83 @@ export class AppModule {}
 <strong style="color: red;">!! 주의 !!</strong>  import 에서 Service, Repository 이런거 넣지 말고 `module` 만 넣어야함..;;
 
 
-
 4. dotenv `user-practice`
+```typescript
+import { ConfigModule } from '@nestjs/config'
+
+@Module({
+   imports: [ConfigModule.forRoot()],
+   ...
+})
+
+export class AppModule{}
+```
+
+* 의존성 주입, 제어반전
+   * constructor 영역에서 생성하는 프로바이더는, 프로바이더 자체에 의존하고 있는건 맞지만 생명주기엔 관여하지 않음. (IoC)
+
+```typescript
+import { Inject, Injectable } from '@nestjs/common';
+
+export interface Person {
+   getName: () => string
+}
+
+@Injectable()
+export class Dexter implements Person {
+   getName(): string {
+      return 'Dexter'
+   }
+}
+
+@Injectable()
+export class Jane implements Person {
+   getName(): string {
+      return 'Jane'
+   }
+}
+
+class MyApp {
+   constructor(@Inject('Person') private p: Person) {} // IoC 가 Person interface 객체를 관리함
+}
+
+// 인터페이스의 경우 모듈에서 선언해줘야 함 (NestJS가 못알아본다나..)
+@Module({
+   providers: [
+      UsersService, 
+      { 
+          provider: 'Person', 
+          useClass: Dexter // default 지정 선택
+      }
+   ],
+})
+
+// 만약 인터페이스를 상속 받은 객체를 여러개 provider 처리하고 싶으면 alias 등록해서 다 일일히 선언해줘야한다고...ㅇㅂㅇ..
+// example
+@Module({
+   providers: [
+      {
+         provide: 'DexterPerson',
+         useClass: Dexter,
+      },
+      {
+         provide: 'JanePerson',
+         useClass: Jane,
+      },
+   ],
+   exports: ['DexterPerson', 'JanePerson'], // 필요한 provider를 export
+})
+
+@Injectable()
+export class MyApp {
+   constructor(
+      @Inject('DexterPerson') private dexter: Person, 
+      @Inject('JanePerson') private jane: Person
+   ) {}
+
+   printNames() {
+      console.log(this.dexter.getName()); // 'Dexter'
+      console.log(this.jane.getName());   // 'Jane'
+   }
+}
+```
