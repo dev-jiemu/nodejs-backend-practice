@@ -307,3 +307,87 @@ findOne(@Param('id', parseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABL
   * 인증 : 신원확인
   * 인가 : 접근권한
   * 인증은 인가로 이어지긴 하는데 <strong>인가가 인증을 의미하진 않음</strong>
+
+
+6. 영속성 : ORM `user-practice`
+- TypeORM
+- 지원하는 데이터 베이스가 많은듯 ㅇㅂㅇ.. mysql, mongo, postgres, oracle, sqlite... 등등 보임
+```typescript
+// app.module.ts
+@Module({
+    imports: [
+            ...
+            TypeOrmModule.forRoot({
+                type: 'mysql',
+                host: 'lodalhost',
+                port: '3306',
+                username: 'root',
+                password: '',
+                database: '',
+                entities: [__dirname + '/**/*.entity{.ts,.js}'],
+                synchronize: true, // 서비스 구동시 소스코드 기반으로 데이터베이스 스키마 동기화 여부 설정
+            })
+    ],
+})
+
+// 사용할 모듈에서 import 처리
+@Module({
+    imports: [
+        EmailModule,
+        TypeOrmModule.forFeature([UserEntity])
+    ],
+    controllers: [UsersController],
+    providers: [UsersService],
+})
+export class UsersModule {}
+```
+* 트랜잭션 처리법 for TypeORM
+    * QueryRunner : 단일 DB connection 생성해서 관리
+    * transaction 함수 직접 사용
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import * as querystring from 'node:querystring';
+
+@Injectable()
+export class UsersService {
+    constructor(private dataSource: DataSource) {}
+
+    // QueryRunner
+    private saveUserusQueryRunner = async (name: string, email: string, password: string, signupVerifyToken: string) => {
+        const queryRunner = this.dataSource.createQueryRunner()
+
+        await queryRunner.connect()
+        await queryRunner.startTransaction()
+        
+        try {
+            const user = new UserEntity()
+            
+            ...
+            
+            await queryRunner.manager.save(user)
+            await queryRunner.commitTransaction()
+        } catch (ex) {
+            await queryRunner.rollbackTransaction(0)
+        } finally{
+            await queryRunner.release() // ** 직접 생성한건 해제 시켜줘야 함
+        }
+    }
+
+
+    // Transaction func
+    private saveUserTransaction = async (name: string, email: string, password: string, signupVerifyToken: string) => {
+        await this.dataSource.transaction(async manager => {
+            const user = new UserEntity()
+            
+            ...
+            
+            await manager.save(user)
+        })
+    }
+}
+```
+* 마이그레이션
+```shell
+npm run typeorm migration:generate src/migrations/CreateUserTable -- -d ./ormconfig.ts
+```
