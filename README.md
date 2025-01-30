@@ -303,3 +303,7 @@ findOne(@Param('id', parseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABL
 }
 ```
 * class-validator https://github.com/typestack/class-validator
+* 인증/인가 ~~가끔 햇갈림~~
+  * 인증 : 신원확인
+  * 인가 : 접근권한
+  * 인증은 인가로 이어지긴 하는데 <strong>인가가 인증을 의미하진 않음</strong>
