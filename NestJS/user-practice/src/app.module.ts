@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import emailConfig from './config/emailConfig';
 import { validationSchema } from './config/validationSchema';
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { AuthModule } from './auth/auth.module';
 import * as path from 'node:path';
 
 // (process.env.NODE_ENV === 'production') ? '.production.env' : (process.env.NODE_ENV === 'stage') ? '.stage.env' : '.development.env'
@@ -29,9 +30,9 @@ import * as path from 'node:path';
             synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
         }),
         UsersModule,
-        EmailModule],
+        EmailModule,
+        AuthModule],
     controllers: [AppController],
     providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}

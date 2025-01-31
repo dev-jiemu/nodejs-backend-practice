@@ -391,3 +391,72 @@ export class UsersService {
 ```shell
 npm run typeorm migration:generate src/migrations/CreateUserTable -- -d ./ormconfig.ts
 ```
+
+7. middleware
+* 라우트 핸들러가 클라이언트 요청 수행하기 전에 수행되는 컴포넌트
+* 미들웨어가 여러개면 next() 로 제어권 조절 필요
+  * 함수로 만든 미들웨어의 단점 : 프로바이더 주입이 안됨 ㅇㅂㅇ..
+```typescript
+import { UsersController } from './users.controller';
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use = (req: Request, res: Respomse, next: NextFunction) => {
+    console.log('Request')
+    next()
+  }
+}
+
+// app.module.ts
+export class AppModule implements NestModule {
+  configure = (consumer: MiddlewareConsumer): any => {
+    // 특정 라우터에 apply 영역에 원하는 미들웨어 여러개 붙임
+    // router url 말고 컨트롤러 자체를 붙여도 됨
+    consumer.apply(LoggerMiddleware).forRoutes('/users')
+    consumer.apply(LoggerMiddleware).forRoutes(UsersController)
+    // exclude : 예외 라우터 설정
+  }
+}
+
+// 완전 전역으로 사용하고 싶으면 main.ts 에 선언
+app.use(LoggerMiddleware)
+```
+
+8. Guard (JWT) `user-practice`
+* 인가 구현
+* CanActivate
+* 세션기반 인증 / 토큰기반 인증
+```typescript
+import { Injectable } from '@nestjs/common';
+import * as process from 'node:process';
+
+@Injectable()
+export class AuthGuard implements CanActivate {
+  canActivate = (context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> => {
+    const request = contexts.switchToHttp().getRequest()
+    return this.validateRequest(request)
+  }
+
+  private validateRequest = (request: any): boolean => {
+    return true
+  }
+}
+
+// 가드 적용
+@UseGuards(AuthGuard)
+@Controller()
+export class AppController {
+
+}
+
+// 가드 전역적용
+// main.ts
+app.useGlobalGuards(new AuthGuard())
+
+// app.module.ts
+@Module({
+  providers: [
+    {provide: APP_GUARD, useClass: AuthGuard}
+  ]
+})
+```
