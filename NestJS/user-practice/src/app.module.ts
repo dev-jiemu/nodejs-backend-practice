@@ -9,6 +9,9 @@ import { validationSchema } from './config/validation-schema';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module';
 import * as path from 'node:path';
+import * as winston from 'winston'
+import { utilities as nestWinstonModuleUtilities, WinstonModule } from "nest-winston";
+import { LoggerModule } from './logger/logger.module';
 
 // (process.env.NODE_ENV === 'production') ? '.production.env' : (process.env.NODE_ENV === 'stage') ? '.stage.env' : '.development.env'
 @Module({
@@ -31,7 +34,8 @@ import * as path from 'node:path';
         }),
         UsersModule,
         EmailModule,
-        AuthModule],
+        AuthModule,
+        LoggerModule],
     controllers: [AppController],
     providers: [AppService],
 })

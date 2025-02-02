@@ -18,7 +18,45 @@ nest new [project-name]
 # app, controller, decorator, filter, gateway, module, provider, resource(CRUD)...
 nest generate(g) [schematics] [name]
 ```
+----
+#### DI(의존성 주입) 관련
+```typescript
+// 1. 일반적인 클래식 타입 기반 주입
+@Injectable()
+export class UsersService{}
 
+// 2. 토큰 기반 주입
+{
+    privide: WINSTON_MODULE_PROVIDER, // token type
+    useFactory: () => new WinstonLogger()
+}
+
+@Controller('users')
+export class UsersController {
+    constructor(
+            private usersService: UsersService, // 클래스 타입이라서 NestJS가 자동으로 주입해줌
+            @Inject(WINSTON_MODULE_PROVIDER) private logger: WinstonLogger // 어떤 타입으로 만들어야할지 모르니까 직접 토큰 지정
+    ){}
+}
+
+// 2-2. 이메일 전송 구현할때 Inject 데코레이터 빼버렸는데 걔는 되고 쟤는 안된 이유 = NestJS가 기본으로 제공하는 서비스가 아니니까.
+// 정 똑같은 효과 내고 싶으면 모듈에서 내가 직접 선언하면 됨
+@Module({
+    providers: [
+        {
+            provide: WinstonLogger, // 일반 클래스 타입으로 등록
+            useFactory: (configService: ConfigService) => {
+                const config = configService.get('winston');
+                return new WinstonLogger(config);
+            },
+            inject: [ConfigService],
+        },
+    ],
+    exports: [WinstonLogger],
+})
+export class LoggerModule {}
+
+```
 
 ----
 #### Node.js 백엔드 개발자 되기(https://product.kyobobook.co.kr/detail/S000201457949)
@@ -459,4 +497,51 @@ app.useGlobalGuards(new AuthGuard())
     {provide: APP_GUARD, useClass: AuthGuard}
   ]
 })
+```
+
+9. Logging `user-practice`
+* 로그 레벨 지정
+```typescript
+import {NestFactory} from "@nestjs/core";
+
+const app = await NestFactory.create(AppModule, {
+    logger: process.env.NODE_ENV === 'production' ? ['error', 'warn', 'log'] : ['error', 'warn', 'log', 'varbose', 'debug']
+})
+```
+* custom logger
+```typescript
+export class CustomLogger implements ConsoleLogger {
+    error = (message: any, stack?: string, context?: string) => {
+        super.error.apply(this, arguments)
+        this.doSomething()
+    }
+    
+    private doSomething = () => {
+        // TODO
+    }
+}
+```
+* custom logger 주입 : 모듈 만들어서 넣기
+```typescript
+import {NestFactory} from "@nestjs/core";
+
+@Module({
+    providers: [CustomLogger],
+    exports: [CustomLogger],
+})
+export class CusgomLoggerModule {
+}
+
+@Module({
+    imports: [CustomLoggerModule]
+})
+export class AppModule {
+}
+
+// 전역으로 지정
+async function boostrap() {
+    const app = await NestFactory.create(AppModule)
+    app.useLogger(app.get(CustemLogger))
+    await app.listen(3000)
+}
 ```

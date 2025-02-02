@@ -10,7 +10,8 @@ import {AuthGuard} from "../common/guards/auth-guard";
 
 @Controller('users')
 export class UsersController {
-    constructor(private usersService: UsersService, private authService: AuthService) {}
+    constructor(private usersService: UsersService,
+                private authService: AuthService) {}
 
     @Post()
     // 메서드 마다 직접적으로 커스텀 파이프를 적용하고 싶다면 이렇게
