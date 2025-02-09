@@ -545,3 +545,58 @@ async function boostrap() {
     await app.listen(3000)
 }
 ```
+
+10. exception
+- nest.js 에서 기본 제공하는 HttpException 존재
+```typescript
+export declare class HttpException extends Error {
+    // 문자열 또는 Record 타입 객체 설정
+    constructor(response: string | Recodrd<string, any>, status: number) {}
+}
+```
+- 직접 예외필터 레이어를 둘수도 있음
+
+```typescript
+import {ArgumentMetadata} from "@nestjs/common";
+import {CreateUserDto} from "./create-user.dto";
+
+@Catch() // 처리되지 않은 모든 예외를 잡을 경우 설정
+export class HttpExceptionFilter implements ExceptionFilter {
+    catch(exception: Error, host: ArgumentsHost) {
+        const ctx = host.switchToHttp()
+        const res = ctx.getResponse<Response>()
+        const req = ctx.getRequest<Request>()
+
+        if (!(exception instanceof HttpException)) {
+            exception = new InternalServerErrorException()
+        }
+
+        const response = (exception as HttpException).getResponse()
+
+        const log = {
+            timestamp: new Date(),
+            url: req.url,
+            response,
+        }
+
+        res.status((exception as HttpException).getStatus()).json(response)
+    }
+}
+
+// 필터 적용 말고 특정 엔드포인트 또는 컨트롤러에 적용하고 싶다면
+@Controller('users')
+export class UsersController {
+    @UseFilters(HttpExceptionFilter)
+    @Post()
+    create(@Body createUserDao: CreateUserDto) {}
+}
+
+@Controller('users')
+@UseFilters(HttpExceptionFilter)
+export class UsersController {}
+
+
+// 전역선언
+app.useGlobalFilters(new HttpExceptionFilter())
+// DI 처리하고 싶으면 프로바이더 등록해주면 됨
+```
