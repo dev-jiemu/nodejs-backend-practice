@@ -546,7 +546,7 @@ async function boostrap() {
 }
 ```
 
-10. exception
+10. exception `user-practice`
 - nest.js 에서 기본 제공하는 HttpException 존재
 ```typescript
 export declare class HttpException extends Error {
@@ -599,4 +599,26 @@ export class UsersController {}
 // 전역선언
 app.useGlobalFilters(new HttpExceptionFilter())
 // DI 처리하고 싶으면 프로바이더 등록해주면 됨
+```
+
+11. interceptor `user-practice`
+- 요청/응답을 가로채서 변형할수 있는 컴포넌트
+  - 추가 로직 바인딩, 결과/예외 변환, 동작확장, 기능 재정의
+
+```typescript
+import {ExecutionContext} from "@nestjs/common";
+import {Observable} from "rxjs";
+
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+    intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+        console.log('Before...')
+
+        const now = Date.now()
+        return next.handle().pipe(tap(() => console.log(`After.. ${Date.now() - now}ms`)))
+    }
+}
+
+// 인터셉트 전역 설정
+app.useGlobalInterceptors(new LoggingInterceptor())
 ```

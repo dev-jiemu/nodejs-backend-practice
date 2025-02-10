@@ -12,6 +12,8 @@ import * as path from 'node:path';
 import * as winston from 'winston'
 import { utilities as nestWinstonModuleUtilities, WinstonModule } from "nest-winston";
 import { LoggerModule } from './logger/logger.module';
+import { ExceptionModule } from './exception/exception.module';
+import {LoggingModule} from "./logging/logging.module";
 
 // (process.env.NODE_ENV === 'production') ? '.production.env' : (process.env.NODE_ENV === 'stage') ? '.stage.env' : '.development.env'
 @Module({
@@ -35,7 +37,9 @@ import { LoggerModule } from './logger/logger.module';
         UsersModule,
         EmailModule,
         AuthModule,
-        LoggerModule],
+        LoggerModule,
+        LoggingModule,
+        ExceptionModule],
     controllers: [AppController],
     providers: [AppService],
 })
