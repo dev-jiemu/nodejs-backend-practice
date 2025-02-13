@@ -622,3 +622,16 @@ export class LoggingInterceptor implements NestInterceptor {
 // 인터셉트 전역 설정
 app.useGlobalInterceptors(new LoggingInterceptor())
 ```
+
+12. schedule `user-practice`
+- batch 관련 패키지
+```shell
+npm install --save @nestjs/schedule @types/cron
+```
+```typescript
+@Module({
+  imports: [
+    ScheduleModule.forRoot(), // 스케쥴러 초기화, 크론잡, 타임아웃, 인터벌 등 등록함
+  ]
+})
+```

@@ -14,6 +14,8 @@ import { utilities as nestWinstonModuleUtilities, WinstonModule } from "nest-win
 import { LoggerModule } from './logger/logger.module';
 import { ExceptionModule } from './exception/exception.module';
 import {LoggingModule} from "./logging/logging.module";
+import { BatchModule } from './batch/batch.module';
+import { TaskService } from './batch/task.service';
 
 // (process.env.NODE_ENV === 'production') ? '.production.env' : (process.env.NODE_ENV === 'stage') ? '.stage.env' : '.development.env'
 @Module({
@@ -39,8 +41,9 @@ import {LoggingModule} from "./logging/logging.module";
         AuthModule,
         LoggerModule,
         LoggingModule,
-        ExceptionModule],
+        ExceptionModule,
+        BatchModule],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, TaskService],
 })
 export class AppModule {}
