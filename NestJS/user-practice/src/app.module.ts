@@ -16,6 +16,9 @@ import { ExceptionModule } from './exception/exception.module';
 import {LoggingModule} from "./logging/logging.module";
 import { BatchModule } from './batch/batch.module';
 import { TaskService } from './batch/task.service';
+import { HealthCheckController } from './health-check/health-check.controller';
+import {TerminusModule} from "@nestjs/terminus";
+import { HttpModule } from '@nestjs/axios'
 
 // (process.env.NODE_ENV === 'production') ? '.production.env' : (process.env.NODE_ENV === 'stage') ? '.stage.env' : '.development.env'
 @Module({
@@ -42,8 +45,11 @@ import { TaskService } from './batch/task.service';
         LoggerModule,
         LoggingModule,
         ExceptionModule,
-        BatchModule],
-    controllers: [AppController],
+        BatchModule,
+        TerminusModule,
+        HttpModule,
+    ],
+    controllers: [AppController, HealthCheckController],
     providers: [AppService, TaskService],
 })
 export class AppModule {}

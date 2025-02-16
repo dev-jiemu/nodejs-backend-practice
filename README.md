@@ -635,3 +635,60 @@ npm install --save @nestjs/schedule @types/cron
   ]
 })
 ```
+
+13. health-check `user-practice`
+- Terminus(@nestjs/terminus) 헬스체크 라이브러리
+```shell
+npm install @nestjs/terminus @nestjs/axios
+```
+- custom 가능
+```typescript
+export interface Dog {
+    name: string
+    type: string
+}
+
+@Injectable()
+export class DogHealthIndicator extends HealthIndicator {
+    private dogs: Dog[] = [
+        {name: 'Fido', type: 'goodboy'},
+        ...
+    ]
+    
+    async isHealthy(key: string) : Promise<HealthIndicatorResult> {
+        const badboys = this.gods.filter(dog => dog.type === 'badboy')
+        const isHealthy = badboys.length === 0
+        const result = this.getStatus(key, isHealthy, {badboys: badboys.length})
+        
+        if (isHealthy) {
+            return result
+        }
+        
+        throw new HealthCheckError('Dogcheck failed', result)
+    }
+}
+```
+
+14. CQRS `user-practice`
+- command, query 분리하는 아키텍처 패턴
+- 조회모델(R), 명령모델(CUD) 분리함
+- DDD : Domain-driven design
+```shell
+npm install @nestjs/cqrs
+```
+- CQRS 패턴 도입하면 아래와 같은 흐름이 됨 <br>
+`UsersController → CommandBus → CreateUserHandler → (UsersService or Repository) → DB`
+- Controller-Service 구조와 CQRS 구조의 차이점 비교
+
+  | 기존 구조 (Service 사용) | CQRS 구조 (CommandHandler 사용) |
+  |-----------------|--------------------------|
+  | Controller에서 Service를 직접 호출 | Controller가 Command를 전달하고, Handler가 처리 |
+  | Service가 모든 비즈니스 로직을 담당 | CommandHandler가 명령을 처리하고, Service를 호출할 수도 있음 |
+  | 단순하지만 서비스 클래스가 커질 가능성 있음 | 역할 분리로 유지보수성과 확장성이 높아짐 |
+  | API 요청과 비즈니스 로직이 강하게 결합됨 | Command를 사용하여 명령을 독립적으로 처리할 수 있음 |
+  | 이벤트 기반 시스템과의 연동이 어려움 | CQRS + Event Sourcing 적용 가능 |
+
+```markdown
+작고 간단한 프로젝트라면 기존 방식(Controller → Service)을 유지
+서비스가 점점 커지거나 확장 가능성을 고려해야 한다면 CQRS를 도입해 CommandHandler를 활용
+```

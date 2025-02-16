@@ -22,12 +22,15 @@
         "typeorm": "ts-node --r ts-node/register ./node_modules/typeorm/cli.js -d ormconfig.js"
     },
     "dependencies": {
+        "@nestjs/axios": "^4.0.0",
         "@nestjs/common": "^10.0.0",
         "@nestjs/config": "^4.0.0",
         "@nestjs/core": "^10.0.0",
+        "@nestjs/cqrs": "^11.0.2",
         "@nestjs/jwt": "^11.0.0",
         "@nestjs/platform-express": "^10.0.0",
         "@nestjs/schedule": "^5.0.1",
+        "@nestjs/terminus": "^11.0.0",
         "@nestjs/typeorm": "^11.0.0",
         "@types/cron": "^2.0.1",
         "class-transformer": "^0.5.1",

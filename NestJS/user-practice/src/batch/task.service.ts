@@ -7,7 +7,7 @@ export class TaskService {
     private readonly logger = new Logger(TaskService.name)
 
     constructor(private schedulerRegistry: SchedulerRegistry) {
-        this.addCronJob()
+        // this.addCronJob()
     }
 
     private addCronJob = () => {
