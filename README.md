@@ -692,3 +692,34 @@ npm install @nestjs/cqrs
 작고 간단한 프로젝트라면 기존 방식(Controller → Service)을 유지
 서비스가 점점 커지거나 확장 가능성을 고려해야 한다면 CQRS를 도입해 CommandHandler를 활용
 ```
+
+❗️handler 선언 방식 고민해보기
+```typescript
+@CommandHandler(UserCommand)
+export class UserCommandHandler implements ICommandHandler<UserCommand> {
+    async execute(command: UserCommand): Promise<void> {
+        switch (command.type) {
+            case 'CREATE':
+                return this.createUser(command);
+            case 'UPDATE':
+                return this.updateUser(command);
+            case 'DELETE':
+                return this.deleteUser(command);
+            default:
+                throw new Error('Unknown command type');
+        }
+    }
+
+    private async createUser(command: UserCommand) { ... }
+    private async updateUser(command: UserCommand) { ... }
+    private async deleteUser(command: UserCommand) { ... }
+}
+```
+* handler를 서비스별로 묶어서 관리할지, 서비스 내에서 cud로 더 상세 분리할지 정하는 관점
+
+| 상황 | 추천 방법 | 이유 |
+|------|----------|------|
+| 프로젝트 규모가 작음 | 하나의 핸들러에서 execute 함수로 분리 | 핸들러 개수를 줄이고 코드 관리를 단순화 |
+| 프로젝트가 점점 커짐 | 개별 핸들러로 분리 (CreateUserHandler, UpdateUserHandler 등) | 역할 분리를 명확히 하고 유지보수성을 높임 |
+| 유지보수가 중요한 경우 | 개별 핸들러로 분리 | 변경 사항을 각 핸들러에서 독립적으로 관리 가능 |
+| 기능이 많아지고 복잡해짐 | 개별 핸들러로 분리 | CQRS의 원칙을 유지하고 확장성을 확보 |

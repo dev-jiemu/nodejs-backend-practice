@@ -7,11 +7,10 @@ import { UserInfoDto } from './dto/user-info.dto';
 import {AuthGuard} from "../common/guards/auth-guard";
 import {CommandBus} from "@nestjs/cqrs";
 import {CreateUserCommand} from "./command/create-user.command";
-// import { Validation } from '../pipe/validationPipe';
 
 @Controller('users')
 export class UsersController {
-    // TODO: command 로 전부 분리
+
     constructor(private usersService: UsersService, private commandBus: CommandBus) {}
 
     @Post()

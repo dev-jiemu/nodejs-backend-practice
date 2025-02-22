@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import {AuthModule} from "../auth/auth.module";
 import {CqrsModule} from '@nestjs/cqrs'
+import {UserEventsHandler} from "./events/user-events-handler";
 
 @Module({
     imports: [
@@ -15,6 +16,6 @@ import {CqrsModule} from '@nestjs/cqrs'
             CqrsModule,
     ],
     controllers: [UsersController],
-    providers: [UsersService, Logger],
+    providers: [UsersService, Logger, UserEventsHandler],
 })
 export class UsersModule {}
