@@ -5,13 +5,18 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserInfoDto } from './dto/user-info.dto';
 import {AuthGuard} from "../common/guards/auth-guard";
-import {CommandBus} from "@nestjs/cqrs";
+import {CommandBus, QueryBus} from "@nestjs/cqrs";
 import {CreateUserCommand} from "./command/create-user.command";
+import {GetUserInfoQuery} from "./querys/get-user-info.query";
 
 @Controller('users')
 export class UsersController {
 
-    constructor(private usersService: UsersService, private commandBus: CommandBus) {}
+    constructor(
+            private usersService: UsersService,
+            private commandBus: CommandBus,
+            private queryBus: QueryBus
+    ) {}
 
     @Post()
     // 메서드 마다 직접적으로 커스텀 파이프를 적용하고 싶다면 이렇게
@@ -23,6 +28,15 @@ export class UsersController {
 
         const command = new CreateUserCommand(name, email, password)
         return this.commandBus.execute(command)
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('/:id')
+    async getUserInfo(@Param('id') userId: string) : Promise<UserInfoDto> {
+        //return await this.usersService.getUserInfo(userId)
+
+        const getUserInfoQuery = new GetUserInfoQuery(userId)
+        return this.queryBus.execute(getUserInfoQuery)
     }
 
     @Post('/email-verify')
@@ -37,11 +51,5 @@ export class UsersController {
         const {email, password} = dto
 
         return await this.usersService.login(email, password)
-    }
-
-    @UseGuards(AuthGuard)
-    @Get('/:id')
-    async getUserInfo(@Param('id') userId: string) : Promise<UserInfoDto> {
-        return await this.usersService.getUserInfo(userId)
     }
 }
